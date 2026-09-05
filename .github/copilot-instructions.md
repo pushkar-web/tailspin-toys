@@ -43,6 +43,30 @@ This is a crowdfunding platform for games with a developer theme. The applicatio
 - Keep data-access helpers in `src/lib/` with an **injectable `db`** argument so they're testable
 - Keep CSV/seed logic as pure functions in `db/transforms.ts`
 - Seed-derived values must be deterministic (no `Math.random`) so static builds are reproducible
+- **Star ratings**: The `Game` type includes a `starRating` field (number 0-5 or `null`). Display using the `StarRating` component which formats the rating with star symbols and shows "No rating yet" when null.
+
+#### Star Rating Implementation
+
+The rating system includes:
+- **Game type** (`src/types/game.ts`): includes `starRating: number | null`
+- **StarRating component** (`src/components/StarRating.astro`): accepts `rating: number | null`, displays stars or "No rating yet"
+- **GameCard component** (`src/components/GameCard.astro`): integrates StarRating display
+
+Example usage in an Astro component:
+```astro
+---
+import StarRating from './StarRating.astro';
+const { game } = Astro.props;
+---
+
+{game.starRating !== null ? (
+    <StarRating rating={game.starRating} />
+) : (
+    <span class="text-slate-500 text-sm">No rating yet</span>
+)}
+```
+
+Rating values are between 0 and 5. The StarRating component uses the `formatStarRating()` helper to render star symbols (★) and `clampRating()` to normalize the value.
 
 ### Astro Patterns
 
@@ -89,8 +113,10 @@ This is a crowdfunding platform for games with a developer theme. The applicatio
 The application lives at the repository root:
 
 - `db/`: Drizzle schema, migrations, transforms, seed, and `games.csv`
-- `src/lib/`: Node SQLite client (`db.ts`) and data-access helpers (`games.ts`)
+- `src/lib/`: Node SQLite client (`db.ts`) and data-access helpers (`games.ts`, `ratings.ts`)
 - `src/components/`: reusable `.astro` components
+  - `GameCard.astro`: displays game summary with title, category, publisher, description, and star rating
+  - `StarRating.astro`: renders formatted star rating or shows "No rating yet" for unrated games
 - `src/layouts/`: Astro layout templates
 - `src/pages/`: Astro page routes (`index.astro` listing, `game/[id].astro`, `404.astro`, `about.astro`)
 - `src/styles/`: CSS and Tailwind configuration
