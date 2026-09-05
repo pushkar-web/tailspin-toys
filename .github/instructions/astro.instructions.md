@@ -32,6 +32,47 @@ const games = await getAllGames(getDatabase());
 </Layout>
 ```
 
+## Reusable Component Props Documentation
+
+Every reusable `.astro` component (those that accept props) **must document its `Props` interface** to make the component's API self-explanatory:
+
+```astro
+---
+/**
+ * GameCard displays a game summary with title, description, category, and star rating.
+ * Used in listing pages and search results.
+ */
+interface Props {
+  game: Game;
+  featured?: boolean;
+}
+
+const { game, featured = false } = Astro.props;
+---
+```
+
+Use JSDoc comments on the interface and individual properties to clarify:
+- What the prop represents
+- Whether it's required or optional (and any default values)
+- The expected data shape
+
+**Example with detailed JSDoc:**
+```astro
+---
+/**
+ * StarRating renders a visual star rating for a game.
+ */
+interface Props {
+  /** Game rating between 0 and 5, or null if unrated */
+  rating: number | null;
+  /** Whether to display the rating in compact form (default: false) */
+  compact?: boolean;
+}
+
+const { rating, compact = false } = Astro.props;
+---
+```
+
 ## Layouts
 
 - Create reusable layout components in `src/layouts/`
@@ -113,6 +154,43 @@ There is no Svelte/React layer. When a page genuinely needs client behaviour, ad
 - Type component imports and helper return values
 - Run `npx astro sync` to (re)generate route/content types before linting or type-checking
 - `.astro` files are type-checked by `npm run typecheck:astro` (which runs `astro sync` then `astro check`), on the classic `typescript` package. The pure TypeScript in `db/`, `src/lib/`, and `src/types/` is type-checked separately by `npm run typecheck` (the native TS 7 compiler, `tsgo`), which does **not** process `.astro` files.
+
+### TypeScript Formatting and Style Rules
+
+**Explicit types for function parameters and return values:**
+```ts
+// Good: explicit types for parameters and returns
+export async function getGameById(db: Database, gameId: number): Promise<Game | undefined> {
+  // ...
+}
+
+// Avoid: inferred types at boundaries
+export async function getGameById(db, gameId) {
+  // ...
+}
+```
+
+**Use const for immutable bindings:**
+```ts
+// Good
+const games = await getAllGames(db);
+const gameTitle = game.title;
+
+// Avoid
+let games = await getAllGames(db);
+var gameTitle = game.title;
+```
+
+**Import/export style:**
+- Use named imports/exports for clarity: `export function getGame(...)` and `import { getGame } from ...`
+- Keep imports grouped and sorted (modules first, then relative paths)
+
+**Naming conventions:**
+- Use camelCase for variables, functions, and properties
+- Use PascalCase for types, interfaces, and classes
+- Use UPPER_SNAKE_CASE for constants
+
+All TypeScript code must pass ESLint checks (`npm run lint`). ESLint enforces these patterns and catches common errors.
 
 ## Best Practices
 
