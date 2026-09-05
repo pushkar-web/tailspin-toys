@@ -6,6 +6,51 @@ description: 'Central UI strategy and component development philosophy'
 
 This file defines the central UI development strategy for Tailspin Toys. Technology-specific guidance is in separate instruction files.
 
+## Commenting and Documentation Philosophy
+
+### Comment Intent, Not Mechanics
+
+Comments should explain **why** a piece of code exists or clarify non-obvious decisions — not restate what the code already says. Remove comments that merely paraphrase the line below them.
+
+**Bad:**
+```ts
+// Increment the counter
+count++;
+
+// Check if the rating is valid
+if (rating > 0 && rating <= 5) {
+  // Store the rating in the database
+  saveRating(rating);
+}
+```
+
+**Good:**
+```ts
+count++;
+
+// Ratings must be in the 1-5 range; the UI enforces this, but we double-check at the data layer.
+if (rating > 0 && rating <= 5) {
+  saveRating(rating);
+}
+```
+
+### When to Comment
+
+- **Design decisions**: Why a non-obvious approach was taken
+- **Workarounds**: Why we didn't use the "obvious" solution
+- **Edge cases**: Why certain values or paths are handled specially
+- **Non-local context**: When code references behavior elsewhere in the system
+
+### Document API Contracts
+
+- **Functions**: Use TSDoc/JSDoc to document purpose, parameters, and return values
+- **Components**: Document the `Props` interface so the component API is self-explanatory
+- **Data structures**: Comment complex types to clarify their structure and usage
+
+### Keep Comments Current
+
+Treat outdated comments as bugs — update or delete them in the same change that touches the related code.
+
 ## Component Architecture
 
 ### Technology Separation

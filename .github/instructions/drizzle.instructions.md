@@ -45,11 +45,45 @@ import { asc, count, eq } from 'drizzle-orm';
 import type { Database } from './db';
 import { games } from '../../db/schema';
 
+/**
+ * Fetch all game IDs in title order (deterministic).
+ * @param db - The database instance
+ * @returns Promise resolving to an array of game IDs sorted by title
+ */
 export async function getAllGameIds(db: Database): Promise<number[]> {
   const rows = await db.select({ id: games.id }).from(games).orderBy(asc(games.title));
   return rows.map((r) => r.id);
 }
 ```
+
+### TSDoc/JSDoc Requirements
+
+**Every exported function in `db/` and `src/lib/` must include a TSDoc/JSDoc comment** describing its purpose, parameters, and return value. This ensures:
+
+- The function's intent is clear to readers
+- Parameters and return types are self-documenting
+- The testing pattern (injectable `db` argument) stays transparent
+- Helpers are easier to use in pages and tests
+
+**Structure:**
+- One-line summary of what the function does
+- `@param` tags for each parameter (including the `db` injectable argument)
+- `@returns` tag describing the return value or Promise
+
+**Example:**
+```ts
+/**
+ * Fetch a game by ID, including its category and publisher details.
+ * @param db - The database instance (injectable for testing)
+ * @param gameId - The game's numeric ID
+ * @returns Promise resolving to a fully hydrated Game or undefined if not found
+ */
+export async function getGameById(db: Database, gameId: number): Promise<Game | undefined> {
+  // ...
+}
+```
+
+### Best Practices
 
 - Always `order by` a stable column (title) so static builds are deterministic.
 - Map raw rows to the app-facing `Game`/`Publisher`/`Category` types in one place; don't leak Drizzle row shapes into components.
